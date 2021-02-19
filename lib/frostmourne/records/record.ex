@@ -14,20 +14,27 @@ defmodule Frostmourne.DomainRegister.Record do
     field :domain_name, :string
     belongs_to :tld, Frostmourne.DomainRegister.Tld
     belongs_to :user, Frostmourne.Accounts.User
-    field :is_active, :boolean
+    field :is_active, :boolean, default: false
     field :claimed_until, :naive_datetime
     field :points_to, :string, default: "0.0.0.0"
 
     timestamps()
   end
 
+  @required_fields ~w(domain_name tld_id user_id)a
+  @optional_fields ~w(points_to)a
+
   @doc """
   A record changeset for registration.
   """
   def registration_changeset(record, attrs) do
     record
-    |> cast(attrs, [:domain_name, :tld])
+    |> cast(attrs, @required_fields ++ @optional_fields)
     |> validate_domain_name()
+    |> foreign_key_constraint(:user_id)
+    |> foreign_key_constraint(:tld_id)
+    |> unsafe_validate_unique([:domain_name, :tld_id], Frostmourne.Repo)
+    |> unique_constraint([:domain_name, :tld_id])
   end
 
   defp validate_domain_name(changeset) do

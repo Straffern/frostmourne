@@ -66,7 +66,6 @@ defmodule FrostmourneWeb.SearchLive do
     end
   end
 
-
   # TODO: Create function that fetches tlds from ETS instead.
   defp get_tlds() do
     DomainRegister.get_tlds()

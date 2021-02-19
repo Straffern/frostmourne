@@ -8,20 +8,11 @@ defmodule Frostmourne.DomainRegister do
   alias Frostmourne.Accounts.User
   alias Frostmourne.DomainRegister.{Tld, Record}
 
-  def register_domain(%User{id: user_id}, %{tld: tld_name} = attrs) do
-    with {:tld_lookup, %Tld{id: tld_id}} <-
-           {:tld_lookup, Repo.get_by(Tld, name: tld_name)} do
-      %Record{user: user_id}
-      |> Record.registration_changeset(%{attrs | tld: tld_id})
-      |> Record.claim_changeset("Claim")
-      |> Repo.insert()
-    else
-      {:tld_lookup, _} ->
-        {:error, :tld_lookup_error}
-
-      err ->
-        {:error, err}
-    end
+  def register_domain(attrs) do
+    %Record{}
+    |> Record.registration_changeset(attrs)
+    |> Record.claim_changeset("Claim")
+    |> Repo.insert()
   end
 
   @doc """
