@@ -19,7 +19,7 @@ defmodule FrostmourneWeb.SearchLive do
     # Improve pattern: https://medium.com/@vaghasiyaharryk/how-to-validate-a-domain-name-using-regular-expression-9ab484a1b430
     domain_regex =
       ~S"(?:(http[s]?:\/\/(www\.)?)|(www\.){1})?(?<domain>(?<domain_name>" <>
-      ~S"[\w]+(-[\w]+)*){1}\.{1}(?<tld>[a-zA-Z]{2,63})?$|([\w]+(-[\w]+)*){1}$){1}"
+      ~S"[\w]+(-[\w]+)*){1}\.{1}(?<tld>[a-zA-Z]{2,6})?$|([\w]+(-[\w]+)*){1}$){1}"
     {:ok, domain_pattern} = Regex.compile(domain_regex)
 
     case Regex.named_captures(domain_pattern, query) do
@@ -45,10 +45,11 @@ defmodule FrostmourneWeb.SearchLive do
   end
 
   defp search_given(domain, tld) when is_list(tld) == false do
+    substring = ~r/^#{tld}/
     case get_tlds() do
       {:ok, tlds} ->
-        # TODO: filter fetched domains, such that list only contains elements that have argument: tld, as a substring.
-        :NotImplementedYet
+        filtered_tlds = Enum.filter(tlds, fn x -> x.tld =~ substring end)
+        search_given(domain, filtered_tlds)
       {:error, _err} -> {:error, :fetch_tlds_error}
     end
   end
