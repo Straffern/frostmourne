@@ -5,7 +5,6 @@ defmodule Frostmourne.DomainRegister do
   import Ecto.Query, warn: false
 
   alias Frostmourne.Repo
-  alias Frostmourne.Accounts.User
   alias Frostmourne.DomainRegister.{Tld, Record}
 
   def register_domain(attrs) do
@@ -21,7 +20,7 @@ defmodule Frostmourne.DomainRegister do
   # ? Consider creating a helper function for get_registered_domains.
   def get_registered_domains(domain_name) do
     query =
-      from(record in Frostmourne.DomainRegister.Record,
+      from(record in Record,
         join: tld in assoc(record, :tld),
         where: record.domain_name == ^domain_name,
         preload: [tld: tld],
@@ -43,7 +42,7 @@ defmodule Frostmourne.DomainRegister do
   """
   def get_registered_domains(domain_name, tld) do
     query =
-      from(record in Frostmourne.DomainRegister.Record,
+      from(record in Record,
         join: tld in assoc(record, :tld),
         where:
           record.domain_name == ^domain_name and
@@ -64,7 +63,7 @@ defmodule Frostmourne.DomainRegister do
   """
   def get_tlds() do
     query =
-      from(tld in Frostmourne.DomainRegister.Tld,
+      from(tld in Tld,
         select: %{tld: tld.name}
       )
     try do
