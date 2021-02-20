@@ -37,25 +37,16 @@ defmodule FrostmourneWeb.SearchLive do
   end
 
   defp search_given(domain) do
-    case get_tlds() do
-      {:ok, tlds} ->
-        search_given(domain, tlds)
-      {:error, _err} -> {:error, :fetch_tlds_error}
-    end
+      search_given(domain, get_tlds())
   end
 
   defp search_given(domain, tld) when is_list(tld) == false do
-    substring = ~r/^#{tld}/
-    case get_tlds() do
-      {:ok, tlds} ->
-        filtered_tlds = Enum.filter(tlds, fn x -> x.tld =~ substring end)
-        search_given(domain, filtered_tlds)
-      {:error, _err} -> {:error, :fetch_tlds_error}
-    end
+    filtered_tlds = get_tlds(tld)
+    search_given(domain, filtered_tlds)
   end
 
   defp search_given(domain, tlds) when is_list(tlds) do
-    domain_combinations = Enum.map(tlds, fn %{tld: tld} -> "#{domain}.#{tld}" end)
+    domain_combinations = Enum.map(tlds, fn %{name: tld} -> "#{domain}.#{tld}" end)
 
     case DomainRegister.get_registered_domains(domain) do
       {:ok, registered_domains} ->
@@ -69,5 +60,10 @@ defmodule FrostmourneWeb.SearchLive do
   # TODO: Create function that fetches tlds from ETS instead.
   defp get_tlds() do
     DomainRegister.get_tlds()
+  end
+
+  # Hack: Some code smell
+  defp get_tlds(name) do
+    DomainRegister.get_tlds_starting_with(name)
   end
 end

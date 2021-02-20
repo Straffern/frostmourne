@@ -3,5 +3,8 @@ defmodule Frostmourne.DomainRegister.Tld do
 
   schema "tld" do
     field :name, :string
+
+    timestamps()
   end
+
 end
