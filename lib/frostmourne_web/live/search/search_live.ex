@@ -64,6 +64,7 @@ defmodule FrostmourneWeb.SearchLive do
 
   # Hack: Some code smell
   defp get_tlds(name) do
-    DomainRegister.get_tlds_starting_with(name)
+    needle = name <> "%"
+    DomainRegister.get_tlds_like(needle)
   end
 end

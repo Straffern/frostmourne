@@ -1,7 +1,7 @@
 defmodule Frostmourne.DomainRegister.Tld do
   use Ecto.Schema
 
-  schema "tld" do
+  schema "tlds" do
     field :name, :string
 
     timestamps()

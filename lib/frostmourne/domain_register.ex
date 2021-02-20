@@ -15,53 +15,43 @@ defmodule Frostmourne.DomainRegister do
   end
 
   @doc """
-  Returns all registered domains, given a domain name.
-  """
-  # ? Consider creating a helper function for get_registered_domains.
-  def get_registered_domains(domain_name) do
-    query =
-      from(domain in Domain,
-        join: tld in assoc(domain, :tld),
-        where: domain.name == ^domain_name,
-        preload: [tld: tld],
-        select: {domain.name, tld.name}
-      )
-    try do
-      {:ok, Repo.all(query)}
-    rescue
-      _e in Ecto.Query.CastError -> {:error, :cast_error}
-      _e in Ecto.QueryError -> {:error, :query_error}
-    end
-  end
+  Returns all registered domains, like `needle`.
 
-  @doc """
-  Returns all registered domains, given a domain name and a tld.
-
-  OBS: This performs a like operation on tld. To avoid 'LIKE' DOS attacks,
-  please ensure to sanitize userinput.
+  Result is limited to 5, and is ordered by length of domain name.
   """
-  def get_registered_domains(domain_name, tld) do
-    query =
-      from(domain in Domain,
-        join: tld in assoc(domain, :tld),
-        where:
-          domain.name == ^domain_name and
-            like(tld.name, ^tld + "%"),
-        preload: [tld: tld],
-        select: %{domain_name: domain.name, tld: tld.name}
-      )
-    try do
-      {:ok, Repo.all(query)}
-    rescue
-      _e in Ecto.Query.CastError -> {:error, :cast_error}
-      _e in Ecto.QueryError -> {:error, :query_error}
-    end
+
+  def get_domains_like(needle)
+    when is_binary(needle) do
+    Domain
+    |> join(:inner, [d], t in assoc(d, :tlds))
+    |> where([d, t], like(d.name, ^needle))
+    |> preload([:tlds])
+    |> order_by([d, t], asc: fragment("length(?)", d.name))
+    |> limit(5)
+    |> select([d, t], %{domain_name: d.name, tld: t.name})
+    |> Repo.all()
   end
 
 
+  @doc """
+  Returns all registered domains, with `domain_name` and tld in `tld_ids` list.
+
+  Results are limited to length of tld_ids.
+  """
+  def get_domain_by_name_and_tlds(domain_name, tld_ids)
+    when is_binary(domain_name) and is_list(tld_ids) do
+    Domain
+    |> join(:inner, [d], t in assoc(d, :tlds))
+    |> where([d, t], d.name == ^domain_name and t.id in ^tld_ids)
+    |> preload([:tlds])
+    |> order_by([d, t], asc: fragment("length(?)", t.name))
+    |> select([d, t], %{domain_name: d.name, tld: t.name})
+    |> Repo.all()
+  end
+
 
   @doc """
-  Returns list of all tlds starting with `name`.
+  Returns list of all tlds with name like `needle`.
 
   ## Examples
 
@@ -69,8 +59,8 @@ defmodule Frostmourne.DomainRegister do
       {:ok, [%Tld{id: 1, name: "com"}, %Tld{id: 13, name: "comma"}]}
 
   """
-  def get_tlds_starting_with(name) do
-    needle = name <> "%"
+  def get_tlds_like(needle)
+    when is_binary(needle) do
     Tld
     |> where([tld], like(tld.name, ^needle))
     |> select([:id, :name])

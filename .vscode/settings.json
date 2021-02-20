@@ -1,0 +1,14 @@
+{
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5432,
+            "name": "Frostmourne_db",
+            "driver": "PostgreSQL",
+            "database": "frostmourne_dev",
+            "username": "postgres",
+            "password": "postgres"
+        }
+    ]
+}
