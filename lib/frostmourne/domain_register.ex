@@ -26,9 +26,9 @@ defmodule Frostmourne.DomainRegister do
     |> join(:inner, [d], t in assoc(d, :tlds))
     |> where([d, t], like(d.name, ^needle))
     |> preload([:tlds])
-    |> order_by([d, t], asc: fragment("length(?)", d.name))
+    # |> order_by([d, t], asc: fragment("length(?)", d.name))
     |> limit(5)
-    |> select([d, t], %{domain_name: d.name, tld: t.name})
+    |> select([d, t], %{domain_name: d.name, tld_id: t.id, tld: t.name})
     |> Repo.all()
   end
 
@@ -44,8 +44,8 @@ defmodule Frostmourne.DomainRegister do
     |> join(:inner, [d], t in assoc(d, :tlds))
     |> where([d, t], d.name == ^domain_name and t.id in ^tld_ids)
     |> preload([:tlds])
-    |> order_by([d, t], asc: fragment("length(?)", t.name))
-    |> select([d, t], %{domain_name: d.name, tld: t.name})
+    # |> order_by([d, t], asc: fragment("length(?)", t.name))
+    |> select([d, t], %{domain_name: d.name, tld_id: t.id, tld: t.name})
     |> Repo.all()
   end
 
@@ -56,7 +56,7 @@ defmodule Frostmourne.DomainRegister do
   ## Examples
 
       iex> get_tlds("com")
-      {:ok, [%Tld{id: 1, name: "com"}, %Tld{id: 13, name: "comma"}]}
+      [%Tld{id: 1, name: "com"}, %Tld{id: 13, name: "comma"}]
 
   """
   def get_tlds_like(needle)

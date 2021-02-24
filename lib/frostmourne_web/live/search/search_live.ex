@@ -24,37 +24,42 @@ defmodule FrostmourneWeb.SearchLive do
 
     case Regex.named_captures(domain_pattern, query) do
       %{"domain_name" => domain, "tld" => ""} ->
-        search_given(domain)
+        search_by(domain)
 
       %{"domain_name" => domain, "tld" => tld} ->
-        search_given(domain, tld)
+        search_by(domain, tld)
 
-      %{error: error} ->
-        Logger.log(:error, "Failed to retrieve search results", error)
-        []
       _ -> []
     end
   end
 
-  defp search_given(domain) do
-      search_given(domain, get_tlds())
+  defp search_by(domain) do
+
+    fuzzy_search = DomainRegister.get_domains_like(domain <> "%")
+    results = search_by(domain, get_tlds())
+
+    fuzzy_merge_occupied = MapSet.new(fuzzy_search) |> MapSet.put(results.occupied) |> MapSet.to_list()
+    %{results | occupied: fuzzy_merge_occupied}
+
   end
 
-  defp search_given(domain, tld) when is_list(tld) == false do
-    filtered_tlds = get_tlds(tld)
-    search_given(domain, filtered_tlds)
-  end
-
-  defp search_given(domain, tlds) when is_list(tlds) do
-    domain_combinations = Enum.map(tlds, fn %{name: tld} -> "#{domain}.#{tld}" end)
-
-    case DomainRegister.get_registered_domains(domain) do
-      {:ok, registered_domains} ->
-        transformed_reg_domains = Enum.map(registered_domains, fn %{domain_name: domain, tld: tld} -> "#{domain}.#{tld}" end)
-        available_domains = MapSet.difference(MapSet.new(domain_combinations), MapSet.new(transformed_reg_domains)) |> MapSet.to_list()
-        %{available: available_domains, occupied: transformed_reg_domains}
-      {:error, _err} -> {:error, :fetch_active_records_error}
+  defp search_by(domain, tld) when is_list(tld) == false do
+    case get_tlds(tld) do
+      [] ->
+        []
+      tlds -> search_by(domain, tlds)
     end
+  end
+
+  defp search_by(domain, tlds) when is_list(tlds) == true do
+    tld_ids = Enum.map tlds, & &1.id
+    domain_combinations = Enum.map tlds, & Map.put(&1, :domain_name, domain)
+    occupied_domains = DomainRegister.get_domain_by_name_and_tlds(domain, tld_ids)
+    available_domains =
+      MapSet.difference(MapSet.new(domain_combinations),
+                        MapSet.new(occupied_domains))
+      |> MapSet.to_list()
+    %{available: available_domains, occupied: occupied_domains}
   end
 
   # TODO: Create function that fetches tlds from ETS instead.
