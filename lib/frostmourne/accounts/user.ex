@@ -1,6 +1,8 @@
-defmodule Frostmourne.Accounts.User do
+defmodule Frostmourne.Datastore.Accounts.User do
   use Ecto.Schema
   import Ecto.Changeset
+
+  alias Frostmourne.Datastore
 
   @derive {Inspect, except: [:password]}
   schema "users" do
@@ -34,6 +36,11 @@ defmodule Frostmourne.Accounts.User do
     |> cast(attrs, [:email, :password])
     |> validate_email()
     |> validate_password(opts)
+  end
+
+  def changeset_login(user, attrs) do
+    user
+    |> cast(attrs, [:email, :password])
   end
 
   defp validate_email(changeset) do
@@ -116,7 +123,7 @@ defmodule Frostmourne.Accounts.User do
   If there is no user or the user doesn't have a password, we call
   `Bcrypt.no_user_verify/0` to avoid timing attacks.
   """
-  def valid_password?(%Frostmourne.Accounts.User{hashed_password: hashed_password}, password)
+  def valid_password?(%Datastore.Accounts.User{hashed_password: hashed_password}, password)
       when is_binary(hashed_password) and byte_size(password) > 0 do
     Bcrypt.verify_pass(password, hashed_password)
   end

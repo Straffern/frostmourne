@@ -1,6 +1,8 @@
-defmodule Frostmourne.DomainRegister.Domain do
+defmodule Frostmourne.Datastore.DomainRegister.Domain do
   use Ecto.Schema
   import Ecto.Changeset
+
+  alias Frostmourne.Datastore
 
   @minute 60
   @hour @minute*60
@@ -12,8 +14,8 @@ defmodule Frostmourne.DomainRegister.Domain do
   @derive {Inspect, only: [:name]}
   schema "domains" do
     field :name, :string
-    belongs_to :tld, Frostmourne.DomainRegister.Tld
-    belongs_to :user, Frostmourne.Accounts.User
+    belongs_to :tld, Datastore.DomainRegister.Tld
+    belongs_to :user, Datastore.Accounts.User
     field :is_active, :boolean, default: false
     field :expiry, :naive_datetime
 

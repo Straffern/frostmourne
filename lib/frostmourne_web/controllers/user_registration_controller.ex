@@ -1,9 +1,9 @@
 defmodule FrostmourneWeb.UserRegistrationController do
   use FrostmourneWeb, :controller
 
-  alias Frostmourne.Accounts
-  alias Frostmourne.Accounts.User
-  alias FrostmourneWeb.UserAuth
+  alias Frostmourne.Datastore.Accounts
+  alias Frostmourne.Datastore.Accounts.User
+  alias FrostmourneWeb.Datastore.UserAuth
 
   def new(conn, _params) do
     changeset = Accounts.change_user_registration(%User{})

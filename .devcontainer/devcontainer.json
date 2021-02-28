@@ -26,7 +26,8 @@
 		"jakebecker.elixir-ls",
 		"mtxr.sqltools",
 		"mtxr.sqltools-driver-pg",
-		"aaron-bond.better-comments"
+		"aaron-bond.better-comments",
+		"msaraiva.surface"
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.

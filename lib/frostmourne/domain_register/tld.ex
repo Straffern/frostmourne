@@ -1,4 +1,4 @@
-defmodule Frostmourne.DomainRegister.Tld do
+defmodule Frostmourne.Datastore.DomainRegister.Tld do
   use Ecto.Schema
 
   schema "tlds" do

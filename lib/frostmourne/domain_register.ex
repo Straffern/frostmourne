@@ -5,7 +5,7 @@ defmodule Frostmourne.DomainRegister do
   import Ecto.Query, warn: false
 
   alias Frostmourne.Repo
-  alias Frostmourne.DomainRegister.{Tld, Domain}
+  alias Frostmourne.Datastore.DomainRegister.{Tld, Domain}
 
   def register_domain(attrs) do
     %Domain{}

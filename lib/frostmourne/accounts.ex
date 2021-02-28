@@ -1,11 +1,26 @@
-defmodule Frostmourne.Accounts do
+defmodule Frostmourne.Datastore.Accounts do
   @moduledoc """
   The Accounts context.
   """
 
   import Ecto.Query, warn: false
   alias Frostmourne.Repo
-  alias Frostmourne.Accounts.{User, UserToken, UserNotifier}
+  alias Frostmourne.Datastore.Accounts.{User, UserToken, UserNotifier}
+
+  ## changeset for register and login forms
+
+  def default_user() do
+    %User{}
+  end
+
+  def change_user() do
+    User.changeset_login(default_user(), %{})
+  end
+
+  def change_user(%User{} = user, attrs) do
+    User.changeset_login(user, attrs)
+  end
+
 
   ## Database getters
 

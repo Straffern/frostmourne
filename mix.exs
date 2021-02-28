@@ -48,6 +48,7 @@ defmodule Frostmourne.MixProject do
       {:gettext, "~> 0.11"},
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
+      {:surface, "~> 0.3.0"},
       # db dashboard
       {:ecto_psql_extras, "~> 0.2"},
       # For generating authentication system.
